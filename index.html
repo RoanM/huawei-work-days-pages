@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cf0a2c">
+<title>在华为工作的天数</title>
+<style>
+  :root {
+    --accent: #cf0a2c;
+    --accent-soft: rgba(207, 10, 44, 0.08);
+    --bg: #f4f5f9;
+    --card: #ffffff;
+    --text: #14161c;
+    --muted: #6b7280;
+    --line: rgba(20, 22, 28, 0.08);
+    --shadow: 0 24px 60px -24px rgba(24, 28, 45, 0.28), 0 2px 8px rgba(24, 28, 45, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent: #ff4d68;
+      --accent-soft: rgba(255, 77, 104, 0.12);
+      --bg: #0c0e14;
+      --card: #151922;
+      --text: #f3f5f9;
+      --muted: #98a0b0;
+      --line: rgba(255, 255, 255, 0.09);
+      --shadow: 0 24px 70px -24px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(900px 520px at 12% -10%, var(--accent-soft), transparent 62%),
+      radial-gradient(700px 460px at 106% 108%, rgba(64, 110, 255, 0.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 40px 40px 32px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .brand::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  h1 {
+    margin: 14px 0 6px;
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .sub {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .picker { margin-top: 28px; }
+
+  .picker label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="date"] {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    font-size: 16px;
+    color: var(--text);
+    background: transparent;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color-scheme: light dark;
+  }
+
+  input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+  .error {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .result {
+    margin-top: 28px;
+    padding: 28px 24px 24px;
+    border-radius: 20px;
+    background: linear-gradient(160deg, var(--accent-soft), transparent 70%);
+    border: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .result-label {
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .result-number {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin: 4px 0 2px;
+  }
+
+  .result-number .num {
+    font-size: clamp(56px, 17vw, 92px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+    color: var(--text);
+  }
+
+  .result-number .unit {
+    font-size: clamp(18px, 4.6vw, 22px);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .result.is-empty .num { color: var(--muted); }
+
+  .result-range {
+    font-size: 13px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .method {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+
+  .method h2 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .method ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+
+  .method li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
+  .method li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 20px 14px calc(24px + env(safe-area-inset-bottom)); }
+    .card { border-radius: 20px; padding: 26px 22px 22px; }
+    .result { padding: 22px 14px 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="card">
+  <header>
+    <span class="brand">Huawei · 工作日历</span>
+    <h1>我在华为工作的日子</h1>
+    <p class="sub">选择加入华为的日期，看看一路走来已经有多少天。</p>
+  </header>
+
+  <section class="picker">
+    <label for="joinDate">加入华为的日期</label>
+    <input type="date" id="joinDate" aria-describedby="rangeText">
+    <p class="error" id="errorText" hidden>入职日期不能晚于今天，请重新选择。</p>
+  </section>
+
+  <section class="result is-empty" id="result">
+    <div class="result-label">已工作</div>
+    <div class="result-number">
+      <span class="num" id="daysText">—</span>
+      <span class="unit">天</span>
+    </div>
+    <div class="result-range" id="rangeText">选择入职日期后开始计算</div>
+  </section>
+
+  <section class="method">
+    <h2>计算口径</h2>
+    <ul>
+      <li>以你设备的本地日期为准，每次打开页面都会按当天重新计算。</li>
+      <li>入职当天计入，即入职当天为第 1 天。</li>
+      <li>统计截止到今天，今天也计入（含头含尾）。</li>
+      <li>日期选择器不可选择未来日期。</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "huawei-join-date";
+  var input = document.getElementById("joinDate");
+  var daysText = document.getElementById("daysText");
+  var rangeText = document.getElementById("rangeText");
+  var errorText = document.getElementById("errorText");
+  var result = document.getElementById("result");
+
+  var msPerDay = 86400000;
+  var shownValue = null;
+
+  function pad2(n) {
+    return n < 10 ? "0" + n : String(n);
+  }
+
+  /* 本地“今天”的零点，转成 UTC 毫秒，避免夏令时/时区误差 */
+  function todayStamp() {
+    var now = new Date();
+    return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  }
+
+  function todayISO() {
+    var now = new Date();
+    return now.getFullYear() + "-" + pad2(now.getMonth() + 1) + "-" + pad2(now.getDate());
+  }
+
+  function parseISO(value) {
+    var parts = value.split("-");
+    return Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  }
+
+  function formatCN(value) {
+    var parts = value.split("-");
+    return Number(parts[0]) + "年" + Number(parts[1]) + "月" + Number(parts[2]) + "日";
+  }
+
+  function daysSince(value) {
+    return Math.round((todayStamp() - parseISO(value)) / msPerDay) + 1;
+  }
+
+  function formatNumber(n) {
+    try {
+      return n.toLocaleString("zh-CN");
+    } catch (e) {
+      return String(n);
+    }
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function animateNumber(target) {
+    if (shownValue === null || prefersReducedMotion()) {
+      shownValue = target;
+      daysText.textContent = formatNumber(target);
+      return;
+    }
+
+    var from = shownValue;
+    var diff = target - from;
+    if (diff === 0) {
+      daysText.textContent = formatNumber(target);
+      return;
+    }
+
+    var start = null;
+    var duration = 600;
+
+    function step(timestamp) {
+      if (start === null) { start = timestamp; }
+      var progress = Math.min((timestamp - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(from + diff * eased);
+      daysText.textContent = formatNumber(current);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        shownValue = target;
+        daysText.textContent = formatNumber(target);
+      }
+    }
+
+    window.requestAnimationFrame(step);
+  }
+
+  function showEmpty(message) {
+    shownValue = null;
+    result.classList.add("is-empty");
+    daysText.textContent = "—";
+    rangeText.textContent = message || "选择入职日期后开始计算";
+  }
+
+  function render() {
+    var value = input.value;
+    var today = todayISO();
+
+    input.max = today;
+
+    if (!value) {
+      errorText.hidden = true;
+      showEmpty();
+      return;
+    }
+
+    if (value > today) {
+      errorText.hidden = false;
+      showEmpty("入职日期不能晚于今天");
+      return;
+    }
+
+    errorText.hidden = true;
+    result.classList.remove("is-empty");
+
+    var days = daysSince(value);
+    animateNumber(days);
+    rangeText.textContent = formatCN(value) + " 起 · 截至 " + formatCN(today);
+  }
+
+  function persist(value) {
+    try {
+      if (value) {
+        window.localStorage.setItem(STORAGE_KEY, value);
+      } else {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      /* 本地存储不可用时忽略，不影响计算 */
+    }
+  }
+
+  function restore() {
+    var saved = null;
+    try {
+      saved = window.localStorage.getItem(STORAGE_KEY);
+    } catch (e) {
+      saved = null;
+    }
+    if (saved && /^\d{4}-\d{2}-\d{2}$/.test(saved) && saved <= todayISO()) {
+      input.value = saved;
+    }
+  }
+
+  input.addEventListener("input", function () {
+    persist(input.value);
+    render();
+  });
+
+  input.addEventListener("change", function () {
+    persist(input.value);
+    render();
+  });
+
+  /* 页面长时间打开跨过零点时，自动按新的一天重新计算 */
+  var lastDay = todayISO();
+  function refreshIfDayChanged() {
+    var now = todayISO();
+    if (now !== lastDay) {
+      lastDay = now;
+      render();
+    }
+  }
+  window.addEventListener("focus", refreshIfDayChanged);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) { refreshIfDayChanged(); }
+  });
+  window.setInterval(refreshIfDayChanged, 60000);
+
+  restore();
+  render();
+})();
+</script>
+</body>
+</html>
